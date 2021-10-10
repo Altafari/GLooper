@@ -24,22 +24,22 @@ def main():
 def process_lines(lines):
     result = []
     buffer = None
-    ls_token = re.compile(r'\s*{\s*startloop\s*}\s*')
-    le_token = re.compile(r'\s*{\s*endloop\s*}\s*')
+    loop_start_re = re.compile(r'\s*{\s*startloop\s*}\s*')
+    loop_end_re = re.compile(r'\s*{\s*endloop\s*}\s*')
     num_group = r'(-?\d*\.?\d+)'
-    param_token = re.compile(r'\s*{\s*from\s+%s\s+to\s+%s\s+step\s+%s\s*}\s*' % (num_group, num_group, num_group))
+    params_re = re.compile(r'\s*{\s*from\s+%s\s+to\s+%s\s+step\s+%s\s*}\s*' % (num_group, num_group, num_group))
     is_macro = False
     loop_params = None
     for ln in lines:
         if is_macro:
-            if le_token.match(ln):
+            if loop_end_re.match(ln):
                 is_macro = False
                 result += expand_macro(buffer, loop_params)
             else:
                 buffer.append(ln)
         else:
-            m = param_token.match(ln)
-            if m or ls_token.match(ln):
+            m = params_re.match(ln)
+            if m or loop_start_re.match(ln):
                 if m:
                     loop_params = extract_loop_params(m)
                 is_macro = True
