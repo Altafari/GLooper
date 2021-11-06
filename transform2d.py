@@ -1,7 +1,7 @@
 from math import cos, sin
 import numpy as np
 
-class Transform2d:
+class Transform2D:
     def __init__(self, *args):
         if len(args) > 0:
             self.tfm = args[0]
@@ -15,7 +15,9 @@ class Transform2d:
         return np.dot(self.tfm, np.array(x + [1.0]))[0:2]
 
     def compose(self, tfm):
-        return Transform2d(np.matmul(tfm, self.tfm))
+        if isinstance(tfm, type(self)):
+            tfm = tfm.tfm
+        return Transform2D(np.matmul(self.tfm, tfm))
     
     def translate(self, v):
         return self.compose(np.array([(1.0, 0.0, v[0]), (0.0, 1.0, v[1]), (0.0, 0.0, 1.0)]))
@@ -33,3 +35,6 @@ class Transform2d:
     
     def scale(self, v):
         return self.compose(np.array([(v[0], 0.0, 0.0), (0.0, v[1], 0.0), (0.0, 0.0, 1.0)]))
+
+    def is_mirroring(self):
+        return np.linalg.det(self.tfm[0:2, 0:2]) < 0.0
