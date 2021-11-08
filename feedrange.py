@@ -1,3 +1,5 @@
+from math import copysign
+
 def feed_range(start, end, step):
     tol = 1.0e-7
     delta = end - start
@@ -8,4 +10,5 @@ def feed_range(start, end, step):
     while (x * sign - end * sign) < -tol:
         res.append(x)
         x += step
+    res.append(end)
     return res
