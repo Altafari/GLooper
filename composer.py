@@ -35,7 +35,7 @@ class Composer:
         params = self._transform(tgt)
         self.program.append(cmd_str % (*params, self.cfg.feed_rate))
 
-    def feed_arc(self, tgt, ctr, is_cw):
+    def feed_arc(self, tgt, ctr_off, is_cw):
         if not self.is_drilled:
             self.drill()
         if is_cw ^ self.tfm.is_mirroring():
@@ -43,7 +43,7 @@ class Composer:
         else:
             cmd_str = "G3 "
         cmd_str = cmd_str + self.float_fmt.join(["X", " Y", " I", " J", " F", ""])
-        params = self._transform(tgt, ctr)
+        params = self._transform(tgt, ctr_off)
         self.program.append(cmd_str % (*params, self.cfg.feed_rate))
 
     def move(self, tgt):
@@ -65,7 +65,11 @@ class Composer:
         self.is_lifted = False
         self.is_drilled = True
 
-    def _transform(self, * args):
-        vect = (self.tfm.apply(v) for v in args)
+    def set_tfm(self, tfm):
+        self.tfm = tfm
+
+    def _transform(self, *args):
+        func = [self.tfm.apply, self.tfm.affine]
+        vect = (f(v) for f, v in zip(func, args))
         return tuple(x for v in vect for x in v)
     
