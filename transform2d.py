@@ -15,7 +15,7 @@ class Transform2D:
         return np.dot(self.tfm, np.array(x + [1.0]))[0:2]
     
     def affine(self, x):
-        return np.dot(self.tfm, np.array(x + [0.0]))[0:2]
+        return np.dot(self.tfm[0:2, 0:2], np.array(x))
 
     def compose(self, tfm):
         if isinstance(tfm, type(self)):
