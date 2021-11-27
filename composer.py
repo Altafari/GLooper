@@ -4,6 +4,7 @@ class ComposerConfig:
     def __init__(self):
         self.feed_rate = 100.0
         self.drill_rate = 50.0
+        self.move_rate = 600.0
         self.lift_z = 3.0
 
 class Composer:
@@ -49,13 +50,13 @@ class Composer:
     def move(self, tgt):
         if not self.is_lifted:
             self.lift()
-        cmd_str = self.float_fmt.join(["G0 X", " Y",  ""])
+        cmd_str = self.float_fmt.join(["G1 X", " Y",  " F", ""])
         params = self._transform(tgt)
-        self.program.append(cmd_str % params)
+        self.program.append(cmd_str % (*params, self.cfg.move_rate))
 
     def lift(self):
-        cmd_str = self.float_fmt.join(["G0 Z", ""]) 
-        self.program.append(cmd_str % self.cfg.lift_z)
+        cmd_str = self.float_fmt.join(["G1 Z", " F", ""]) 
+        self.program.append(cmd_str % (self.cfg.lift_z, self.cfg.move_rate))
         self.is_lifted = True
         self.is_drilled = False
 

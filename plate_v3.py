@@ -5,7 +5,7 @@ from math import sqrt
 
 class PlateGCodeGenerator:
     def __init__(self):
-        self.z_seq = feed_range(0.0, -1.1, 0.2)
+        self.z_seq = feed_range(0.0, -1.3, 0.2)
         self.mill_rad = 0.25
         origin = Transform2D().translate([33.0, 33.0])
         self.origin = origin
