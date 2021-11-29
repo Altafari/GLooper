@@ -15,15 +15,13 @@ class PlateGCodeGenerator:
     def cut_hex_hole(self, size=7.0):
         dist = size / sqrt(3) - self.mill_rad
         corner = [0.0, dist]
-        self.comp.set_tfm(self.six_angles[0])
+        self.comp.set_tfm(self.six_angles[-1])
         self.comp.move(corner)
         for z in self.z_seq:
             self.comp.set_z(z)
             for t in self.six_angles:
                 self.comp.set_tfm(t)
                 self.comp.feed(corner)
-        self.comp.set_tfm(self.six_angles[0])
-        self.comp.feed(corner)
     
     def cut_round_holes(self, radius=10.5, offset=[14.0, 14.0]):
         corr_rad = radius - self.mill_rad
@@ -55,54 +53,55 @@ class PlateGCodeGenerator:
 def generate_origins(x_dim, x_count, y_dim, y_count):
     return [Transform2D().translate([x*x_dim, y*y_dim]) for y in range(0, y_count) for x in range(0, x_count)]
 
-def cut_preliminary_holes(origins, comp, fr):
+def cut_preliminary_holes(origins, comp, fr, diam):
     res = []
     for origin in origins:
-        p = PlateGCodeGenerator(origin, 2, comp, fr)        
+        p = PlateGCodeGenerator(origin, diam, comp, fr)
         p.cut_hex_hole()
         p.cut_round_holes()
         res += p.comp.program
-    return res
+    return shutdown_and_park(comp, res)
 
-def cut_accurate_hex_holes(origins, comp, fr):
+def cut_accurate_hex_holes(origins, comp, fr, diam):
     res = []
     for origin in origins:
-        p = PlateGCodeGenerator(origin, 0.5, comp, fr)
+        p = PlateGCodeGenerator(origin, diam, comp, fr)
         p.cut_hex_hole()
         res += p.comp.program
-    return res
+    return shutdown_and_park(comp, res)
 
-def cut_final_contours(origins, comp, fr):
+def cut_final_contours(origins, comp, fr, diam):
     res = []
     for origin in origins:
-        p = PlateGCodeGenerator(origin, 2, comp, fr)
+        p = PlateGCodeGenerator(origin, diam, comp, fr)
         p.cut_outer_contour()
         res += p.comp.program
-    return res
+    return shutdown_and_park(comp, res)
+
+def shutdown_and_park(comp, res):
+    comp.program = []
+    comp.set_spindle(0)
+    comp.set_tfm(Transform2D())
+    comp.move([0.0, 0.0])
+    return res + comp.program
 
 if __name__ == '__main__':
-    origins = generate_origins(66, 3, 66, 2)
+    origins = generate_origins(66, 1, 66, 1)
     cc = ComposerConfig()
     cc.feed_rate = 240
     cc.drill_rate = 120
     comp = Composer(cc)
     comp.set_spindle(1000)
     fr = [-1.4]
-    first_cut = cut_preliminary_holes(origins, comp, fr)
-    comp.set_spindle(0)
-    comp.set_tfm(Transform2D())
-    comp.move([0.0, 0.0])
-    with open('plate_2mm_holes.gcode', 'w+') as f:
+    first_cut = cut_preliminary_holes(origins, comp, fr, 2.2)
+    with open('plate_2.2mm_holes.gcode', 'w+') as f:
         f.write('\n'.join(first_cut))
     cc.feed_rate = 60
     cc.drill_rate = 60
     comp = Composer(cc)
     comp.set_spindle(1000)
     fr = feed_range(0, -1.4, 0.2)
-    second_cut = cut_accurate_hex_holes(origins, comp, fr)
-    comp.set_spindle(0)
-    comp.set_tfm(Transform2D())
-    comp.move([0.0, 0.0])
+    second_cut = cut_accurate_hex_holes(origins, comp, fr, 0.5)
     with open('plate_0.5mm_holes.gcode', 'w+') as f:
         f.write('\n'.join(second_cut))
     cc.feed_rate = 240
@@ -110,11 +109,8 @@ if __name__ == '__main__':
     comp = Composer(cc)
     comp.set_spindle(1000)
     fr = [-1.4]
-    third_cut = cut_final_contours(origins, comp, fr)
-    comp.set_spindle(0)
-    comp.set_tfm(Transform2D())
-    comp.move([0.0, 0.0])
-    with open('plate_2mm_contour.gcode', 'w+') as f:
+    third_cut = cut_final_contours(origins, comp, fr, 2.2)
+    with open('plate_2.2mm_contour.gcode', 'w+') as f:
         f.write('\n'.join(third_cut))
     
 
