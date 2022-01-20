@@ -22,8 +22,8 @@ class TestProgram(unittest.TestCase):
         res = comp.program
         expected = [
             'M3 S1000.000',
-            'G0 Z3.000',
-            'G0 X-50.000 Y10.000',
+            'G1 Z3.000 F600.000',
+            'G1 X-50.000 Y10.000 F600.000',
             'G1 Z0.000 F50.000',
             'G1 X50.000 Y10.000 F100.000',
             'G1 X50.000 Y-10.000 F100.000',
@@ -49,8 +49,8 @@ class TestProgram(unittest.TestCase):
             'G1 X50.000 Y-10.000 F100.000',
             'G1 X-50.000 Y-10.000 F100.000',
             'G1 X-50.000 Y10.000 F100.000',
-            'G0 Z3.000',
-            'G0 X0.000 Y0.000',
+            'G1 Z3.000 F600.000',
+            'G1 X0.000 Y0.000 F600.000',
             'M5',
         ]
         self.assertListEqual(expected, res)
@@ -65,12 +65,12 @@ class TestProgram(unittest.TestCase):
         comp.feed_arc([50.0, 20], [0.0, 300.0], False)
         res = comp.program
         expected = [
-            'G0 Z3.000',
-            'G0 X-50.000 Y20.000',
+            'G1 Z3.000 F600.000',
+            'G1 X-50.000 Y20.000 F600.000',
             'G1 Z-0.200 F50.000',
             'G3 X50.000 Y20.000 I0.000 J300.000 F100.000',
-            'G0 Z3.000',
-            'G0 X-50.000 Y-20.000',
+            'G1 Z3.000 F600.000',
+            'G1 X-50.000 Y-20.000 F600.000',
             'G1 Z-0.200 F50.000',
             'G2 X50.000 Y-20.000 I0.000 J-300.000 F100.000',
         ]
