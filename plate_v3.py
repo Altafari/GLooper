@@ -4,15 +4,12 @@ from feedrange import feed_range
 from math import sqrt
 
 class PlateGCodeGenerator:
-    def __init__(self):
-        self.z_seq = feed_range(0.0, -1.3, 0.3)
+    def __init__(self, offset, composer):
+        self.z_seq = feed_range(0, -1.35, 0.45)
         self.mill_rad = 0.5
-        origin = Transform2D().translate([33.0, 33.0])
+        origin = offset.translate([33.0, 33.0])
         self.origin = origin
-        cc = ComposerConfig()
-        cc.feed_rate = 120.0
-        cc.drill_rate = 120.0
-        self.comp = Composer(cc)
+        self.comp = composer
         self.four_angles = [origin.rotate(a) for a in range(0, 360, 90)]
         self.six_angles = [origin.rotate(a) for a in range(0, 360, 60)]
 
@@ -56,6 +53,7 @@ class PlateGCodeGenerator:
                 self.comp.feed_arc(arc_goal, ctr_off, False)
 
     def lift_for_cleaning(self):
+        return
         prev_lift_z = self.comp.cfg.lift_z
         self.comp.cfg.lift_z = 35
         self.comp.set_spindle(0)
@@ -64,17 +62,25 @@ class PlateGCodeGenerator:
         self.comp.lift()
         self.comp.set_spindle(1000)
 
+    def render_program(self):
+        self.cut_hex_hole()
+        self.lift_for_cleaning()
+        self.cut_round_holes()
+        self.cut_outer_contour()
+        self.lift_for_cleaning()
+        self.comp.set_tfm(p.origin)
                 
 if __name__ == '__main__':
-    p = PlateGCodeGenerator()
-    p.comp.set_spindle(1000)
-    p.cut_hex_hole()
-    p.lift_for_cleaning()
-    p.cut_round_holes()
-    p.cut_outer_contour()
-    p.lift_for_cleaning()
-    p.comp.set_tfm(p.origin)
-    p.comp.set_spindle(0)
-    p.comp.move([0.0, 0.0])
+    cc = ComposerConfig()
+    cc.feed_rate = 180.0
+    cc.drill_rate = 120.0
+    comp = Composer(cc)
+    comp.set_spindle(1000)
+    for x in range(0, 4):
+        offset = [63 * x, 0]
+        p = PlateGCodeGenerator(Transform2D().translate(offset), comp)
+        p.render_program()
+    comp.lift()
+    comp.set_spindle(0)
     with open('plate_v3.gcode', 'w+') as f:
-        f.write('\n'.join(p.comp.program))
+        f.write('\n'.join(comp.program))
