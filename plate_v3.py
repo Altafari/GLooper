@@ -16,7 +16,7 @@ class PlateGCodeGenerator:
         self.six_angles = [origin.rotate(a) for a in range(0, 360, 60)]
 
     def cut_hex_hole(self, size=7.0):
-        dist = (size + 2 * self.mill_rad) / sqrt(3)
+        dist = (size - 2.0 * self.mill_rad) / sqrt(3)
         corner = [0.0, dist]
         self.comp.set_tfm(self.four_angles[0])
         self.comp.move(corner)
@@ -65,7 +65,7 @@ class PlateGCodeGenerator:
         self.comp.set_spindle(1000)
 
     def render_program(self):
-        self.cut_hex_hole()
+        self.cut_hex_hole(7.4)
         self.lift_for_cleaning()
         self.cut_round_holes()
         self.cut_outer_contour()
@@ -78,11 +78,11 @@ if __name__ == '__main__':
     cc.drill_rate = 120.0
     comp = Composer(cc)
     comp.set_spindle(1000)
-    for x in range(0, 2):
-        offset = [63 * x, 0]
-        z_offset = 0
-        p = PlateGCodeGenerator(Transform2D().translate(offset), comp, z_offset)
-        p.render_program()
+    for y in range(0, 1):
+        for x in range(0, 4):
+            offset = [63 * x, 63 * y]
+            p = PlateGCodeGenerator(Transform2D().translate(offset), comp, 0)
+            p.render_program()
     comp.lift()
     comp.set_spindle(0)
     with open('plate_v3.gcode', 'w+') as f:
