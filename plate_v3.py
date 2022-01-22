@@ -5,7 +5,9 @@ from math import sqrt
 
 class PlateGCodeGenerator:
     def __init__(self, offset, composer, z_offset):
-        self.z_seq = feed_range(0 + z_offset, -1.35 + z_offset, 0.45)
+        step = 0.45
+        depth = 1.3
+        self.z_seq = feed_range(z_offset - step, -depth + z_offset, step)
         self.mill_rad = 0.5
         origin = offset.translate([33.0, 33.0])
         self.origin = origin
@@ -14,7 +16,7 @@ class PlateGCodeGenerator:
         self.six_angles = [origin.rotate(a) for a in range(0, 360, 60)]
 
     def cut_hex_hole(self, size=7.0):
-        dist = size / sqrt(3) - self.mill_rad
+        dist = (size + 2 * self.mill_rad) / sqrt(3)
         corner = [0.0, dist]
         self.comp.set_tfm(self.four_angles[0])
         self.comp.move(corner)
@@ -76,7 +78,7 @@ if __name__ == '__main__':
     cc.drill_rate = 120.0
     comp = Composer(cc)
     comp.set_spindle(1000)
-    for x in range(0, 4):
+    for x in range(0, 2):
         offset = [63 * x, 0]
         z_offset = 0
         p = PlateGCodeGenerator(Transform2D().translate(offset), comp, z_offset)
