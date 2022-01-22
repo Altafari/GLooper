@@ -4,8 +4,8 @@ from feedrange import feed_range
 from math import sqrt
 
 class PlateGCodeGenerator:
-    def __init__(self, offset, composer):
-        self.z_seq = feed_range(0, -1.35, 0.45)
+    def __init__(self, offset, composer, z_offset):
+        self.z_seq = feed_range(0 + z_offset, -1.35 + z_offset, 0.45)
         self.mill_rad = 0.5
         origin = offset.translate([33.0, 33.0])
         self.origin = origin
@@ -78,7 +78,8 @@ if __name__ == '__main__':
     comp.set_spindle(1000)
     for x in range(0, 4):
         offset = [63 * x, 0]
-        p = PlateGCodeGenerator(Transform2D().translate(offset), comp)
+        z_offset = 0
+        p = PlateGCodeGenerator(Transform2D().translate(offset), comp, z_offset)
         p.render_program()
     comp.lift()
     comp.set_spindle(0)
