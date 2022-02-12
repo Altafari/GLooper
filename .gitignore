@@ -2,3 +2,4 @@
 .vscode
 *.gcode
 *.pyc
+*.nc
