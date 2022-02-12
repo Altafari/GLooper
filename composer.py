@@ -66,9 +66,9 @@ class Composer:
         self.is_lifted = False
         self.is_drilled = True
 
-    def pause(self, ms=1000):
+    def pause(self, ms=1000.0):
         cmd_str = self.float_fmt.join(["G4 P", ""])
-        self.program.append(cmd_str % ms)
+        self.program.append(cmd_str % (ms / 1000.0))
 
     def set_tfm(self, tfm):
         self.tfm = tfm
