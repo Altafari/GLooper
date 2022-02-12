@@ -25,7 +25,7 @@ class PlateGCodeGenerator:
                 self.comp.set_z(z)
                 self.comp.feed_arc(entry, [corr_rad, 0.0], False)
                 self.comp.lift()
-                self.pause(1000)
+                self.comp.pause(1000)
             self.lift_for_cleaning()
 
     def cut_outer_contour(self, radius=43, offset=37):
@@ -45,7 +45,7 @@ class PlateGCodeGenerator:
                 ctr_off = [-line_goal[0], -line_goal[1]]
                 self.comp.feed_arc(arc_goal, ctr_off, True)
             self.comp.lift()
-            self.pause(1000)
+            self.comp.pause(1000)
         self.lift_for_cleaning()
 
     def render_program(self):
