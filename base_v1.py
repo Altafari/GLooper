@@ -70,11 +70,7 @@ if __name__ == '__main__':
     comp = Composer(cc)
     comp.set_spindle(1000)
     for y in range(0, 2):
-        if y == 0:
-            start = 1
-        else:
-            start = 0
-        for x in range(start, 3):
+        for x in range(0, 3):
             offset = [78 * x, 78 * y]
             p = PlateGCodeGenerator(Transform2D().translate(offset), comp, 0)
             p.render_program()
