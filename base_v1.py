@@ -23,7 +23,7 @@ class PlateGCodeGenerator:
             self.comp.move(entry)
             for z in self.z_seq:
                 self.comp.set_z(z)
-                self.comp.feed_arc(entry, [corr_rad, 0.0], False)
+                self.comp.feed_arc(entry, [corr_rad, 0.0], True)
                 self.comp.lift()
                 self.comp.pause(1000)
             self.lift_for_cleaning()
@@ -43,7 +43,7 @@ class PlateGCodeGenerator:
                 self.comp.set_tfm(t)
                 self.comp.feed(line_goal)
                 ctr_off = [-line_goal[0], -line_goal[1]]
-                self.comp.feed_arc(arc_goal, ctr_off, True)
+                self.comp.feed_arc(arc_goal, ctr_off, False)
             self.comp.lift()
             self.comp.pause(1000)
         self.lift_for_cleaning()
@@ -69,8 +69,12 @@ if __name__ == '__main__':
     cc.drill_rate = 60.0
     comp = Composer(cc)
     comp.set_spindle(1000)
-    for y in range(0, 1):
-        for x in range(0, 1):
+    for y in range(0, 2):
+        if y == 0:
+            start = 1
+        else:
+            start = 0
+        for x in range(start, 3):
             offset = [78 * x, 78 * y]
             p = PlateGCodeGenerator(Transform2D().translate(offset), comp, 0)
             p.render_program()

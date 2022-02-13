@@ -18,7 +18,7 @@ if __name__ == '__main__':
         comp.set_z(z)
         comp.feed(coords[idx])
         comp.lift()
-        comp.pause(1)
+        comp.pause(1000)
     comp.cfg.lift_z = 30
     comp.lift()
     comp.set_spindle(0)
