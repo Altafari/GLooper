@@ -39,14 +39,32 @@ class PlateGCodeGenerator:
         self.comp.move(entry)
         for z in self.z_seq:
             self.comp.set_z(z)
-            for t in self.four_angles:
+            for t, i in zip(self.four_angles, range(0, 4)):
                 self.comp.set_tfm(t)
-                self.comp.feed(line_goal)
+                if(i % 2 == 0):
+                    self.cut_side(offset, intercept)
+                else:
+                    self.comp.feed(line_goal)
                 ctr_off = [-line_goal[0], -line_goal[1]]
                 self.comp.feed_arc(arc_goal, ctr_off, False)
             self.comp.lift()
             self.comp.pause(1000)
         self.lift_for_cleaning()
+
+    def cut_side(self, offset, intercept, d1=10.0, h1=8.0, w1=8.0, w2=1.5, t1=1.5, d2=2.0):
+        r = self.mill_rad
+        x1 = offset + r
+        y1 = d1 - r
+        x2 = offset + r + h1 - (t1 + w2)
+        y2 = y1 + d2
+        x3 = x2 + w2 - 2.0*r
+        slot = [[x1, y1], [x2, y1], [x2, y2], [x3, y2], [x3, y1]]
+        pts = [[x1+h1, y1], [x1+h1, d1+w1+r], [x1, d1+w1+r], [x1, intercept]]
+        half_cut = slot + pts
+        mirrored_cut = [[x, -y] for x, y in half_cut[::-1]]
+        full_cut = mirrored_cut[1:] + half_cut
+        for p in full_cut:
+            self.comp.feed(p)
 
     def render_program(self):
         self.cut_round_holes()
@@ -71,7 +89,7 @@ if __name__ == '__main__':
     comp.set_spindle(1000)
     for y in range(0, 2):
         for x in range(0, 3):
-            offset = [78 * x, 78 * y]
+            offset = [94 * x, 78 * y]
             p = PlateGCodeGenerator(Transform2D().translate(offset), comp, 0)
             p.render_program()
     comp.lift()
