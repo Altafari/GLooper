@@ -8,7 +8,7 @@ class PlateGCodeGenerator:
         step = 0.3
         depth = 5.6
         self.z_seq = feed_range(z_offset - step, -depth + z_offset, step)
-        self.mill_rad = 0.6
+        self.mill_rad = 0.65
         origin = offset.translate([40.0, 40.0])
         self.origin = origin
         self.comp = composer
