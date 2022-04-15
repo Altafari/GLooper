@@ -8,7 +8,7 @@ class PlateGCodeGenerator:
         step = 0.3
         depth = 5.6
         self.z_seq = feed_range(z_offset - step, -depth + z_offset, step)
-        self.mill_rad = 0.65
+        self.mill_rad = 0.7
         origin = offset.translate([40.0, 40.0])
         self.origin = origin
         self.comp = composer
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     cc.drill_rate = 60.0
     comp = Composer(cc)
     comp.set_spindle(1000)
-    for y in range(0, 2):
+    for y in range(0, 1):
         for x in range(0, 3):
             offset = [94 * x, 78 * y]
             p = PlateGCodeGenerator(Transform2D().translate(offset), comp, 0)

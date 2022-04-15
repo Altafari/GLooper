@@ -4,7 +4,7 @@ class ComposerConfig:
     def __init__(self):
         self.feed_rate = 100.0
         self.drill_rate = 50.0
-        self.move_rate = 600.0
+        self.move_rate = 1500.0
         self.lift_z = 3.0
 
 class Composer:
