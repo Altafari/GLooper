@@ -9,25 +9,34 @@ class LevelGCodeGenerator:
         self.comp = composer
         self.width = width
         self.height = height
+        self.finish = True
+        self.depth = 0
 
     def render_program(self):
-        comp = self.comp
-        comp.set_z(-0.7)
+        comp = self.comp        
         comp.move([0, 0])
         y = self.height
-        for x in feed_range(0, self.width, 1):
-            comp.feed([x, y])
-            if y != 0:
-                y = 0
-            else:
-                y = self.height
-            comp.feed([x, y])
+        if self.finish:
+            comp.set_z(self.depth-0.05)
+            for x in feed_range(0.5, self.width, 1):                
+                comp.move([x, 0])
+                comp.feed([x, y])
+        else:
+            comp.set_z(self.depth)
+            for x in feed_range(0, self.width, 1):
+                comp.feed([x, y])
+                if y != 0:
+                    y = 0
+                else:
+                    y = self.height
+                comp.feed([x, y])
 
 
 if __name__ == '__main__':
     cc = ComposerConfig()
     cc.feed_rate = 1000.0
-    cc.drill_rate = 200.0
+    cc.drill_rate = 500.0
+    cc.lift_z = 0.5
     comp = Composer(cc)
     comp.set_spindle(1000)
     p = LevelGCodeGenerator(comp, 300, 180)

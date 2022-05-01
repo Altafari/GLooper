@@ -5,10 +5,10 @@ from math import sqrt
 
 class PlateGCodeGenerator:
     def __init__(self, offset, composer, z_offset):
-        step = 0.3
-        depth = 5.6
+        step = 0.2
+        depth = 5.3
         self.z_seq = feed_range(z_offset - step, -depth + z_offset, step)
-        self.mill_rad = 0.7
+        self.mill_rad = 0.75
         origin = offset.translate([40.0, 40.0])
         self.origin = origin
         self.comp = composer
@@ -24,9 +24,9 @@ class PlateGCodeGenerator:
             for z in self.z_seq:
                 self.comp.set_z(z)
                 self.comp.feed_arc(entry, [corr_rad, 0.0], True)
-                self.comp.lift()
-                self.comp.pause(1000)
-            self.lift_for_cleaning()
+                #self.comp.lift()
+                #self.comp.pause(1000)
+            #self.lift_for_cleaning()
 
     def cut_outer_contour(self, radius=43, offset=37):
         radius_corr = radius + self.mill_rad
@@ -47,9 +47,9 @@ class PlateGCodeGenerator:
                     self.comp.feed(line_goal)
                 ctr_off = [-line_goal[0], -line_goal[1]]
                 self.comp.feed_arc(arc_goal, ctr_off, False)
-            self.comp.lift()
-            self.comp.pause(1000)
-        self.lift_for_cleaning()
+            #self.comp.lift()
+            #self.comp.pause(1000)
+        #self.lift_for_cleaning()
 
     def cut_side(self, offset, intercept, d1=10.0, h1=8.0, w1=8.0, w2=1.5, t1=1.5, d2=2.0):
         r = self.mill_rad
@@ -83,16 +83,16 @@ class PlateGCodeGenerator:
 
 if __name__ == '__main__':
     cc = ComposerConfig()
-    cc.feed_rate = 150.0
-    cc.drill_rate = 60.0
+    cc.feed_rate = 450.0
+    cc.drill_rate = 250.0
     comp = Composer(cc)
     comp.set_spindle(1000)
-    for y in range(0, 1):
+    for y in range(0, 2):
         for x in range(0, 3):
             offset = [94 * x, 78 * y]
             p = PlateGCodeGenerator(Transform2D().translate(offset), comp, 0)
             p.render_program()
     comp.lift()
     comp.set_spindle(0)
-    with open('base_v1.nc', 'w+') as f:
+    with open('base_v2.nc', 'w+') as f:
         f.write('\n'.join(comp.program))
