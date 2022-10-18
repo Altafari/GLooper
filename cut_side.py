@@ -3,15 +3,15 @@ from feedrange import feed_range
 
 if __name__ == '__main__':
     cc = ComposerConfig()
-    cc.feed_rate = 300.0
-    cc.drill_rate = 200.0
+    cc.feed_rate = 100.0
+    cc.drill_rate = 100.0
     comp = Composer(cc)
-    comp.set_spindle(1000)
+    comp.set_spindle(100)
     step = 0.4
-    depth = 1.8
+    depth = 5.2
     z_seq = feed_range(-step, -depth, step)
     idx = 0
-    coords = [[0, 0], [100, 0]]
+    coords = [[10, -40], [10, 40]]
     comp.move(coords[0])
     for z in z_seq:
         idx = (idx + 1) % 2
