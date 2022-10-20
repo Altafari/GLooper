@@ -4,7 +4,7 @@ from feedrange import feed_range
 from pcontext import PContext, cut_slot, cut_rectangle
 
 def cut_slots_at(origin, comp, pc):
-    pcc = PContext(comp, z_seq[0:2], mill_rad=0.6, is_cutout=True)
+    pcc = PContext(comp, z_seq[0:2], mill_rad=pc.mill_rad, is_cutout=True)
     width = 5.1
     height = 8.0
     h_margin = 0.1
@@ -18,6 +18,7 @@ def cut_slots_at(origin, comp, pc):
     comp.pause(5000)
     cut_slot(pc, width, h_wm, origin.translate([0, -offset - height - h_margin]))
     cut_rectangle(pcc, width, h_wc, origin.translate([0, -offset - height - cutout]))
+    comp.lift()
     comp.pause(5000)    
 
 def cut_all_slots(origin, comp, pc):
