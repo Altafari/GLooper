@@ -14,19 +14,15 @@ def cut_slots_at(origin, comp, pc):
     h_wc = height + 2 * cutout
     cut_slot(pc, width, h_wm, origin.translate([0, offset - h_margin]))
     cut_rectangle(pcc, width, h_wc, origin.translate([0, offset - cutout]))
-    comp.lift()
-    comp.pause(5000)
     cut_slot(pc, width, h_wm, origin.translate([0, -offset - height - h_margin]))
     cut_rectangle(pcc, width, h_wc, origin.translate([0, -offset - height - cutout]))
-    comp.lift()
-    comp.pause(5000)    
 
 def cut_all_slots(origin, comp, pc):
     offset = 25.0
     origin = origin.translate([20.0 - 0.05, 0])
     for _ in range(10):
         cut_slots_at(origin, comp, pc)
-        origin = origin.translate([offset, 0])
+        origin= origin.translate([offset, 0])
 
 def cut_contour(origin, comp, pc):
     mr = pc.mill_rad  
