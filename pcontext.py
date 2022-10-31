@@ -41,6 +41,9 @@ def cut_slot(cont, width, height, origin):
             comp.feed(corner)
 
 def cut_rounded_rectangle(cont, width, height, radius, origin):
+    if cont.is_cutout:
+        if radius < cont.mill_rad:
+            raise Exception('Cutout corner radius smaller than mill radius')
     comp = cont.comp
     offset = cont.get_offset()
     points = __compute_rounded_points(offset, width, height, radius)
@@ -52,16 +55,30 @@ def cut_rounded_rectangle(cont, width, height, radius, origin):
             comp.feed(fp)
             comp.feed_arc(ap, off, True)
 
-def cut_circle(cont, diameter, center):
+def cut_circle(cont, diameter, origin):
     comp = cont.comp
     offset = cont.get_offset()
     radius = (0.5 * diameter) - offset
-    comp.set_tfm(center)
+    comp.set_tfm(origin)
     start = [radius, 0]
+    finish = [-radius, 0]
     comp.move(start)
     for z in cont.z_seq:
         comp.set_z(z)
-        comp.feed_arc(start, [-radius, 0], True)
+        comp.feed_arc(finish, [-radius, 0], cont.is_cutout)
+        comp.feed_arc(start, [radius, 0], cont.is_cutout)
+
+def cut_hex_hole(cont, wr_size, origin):
+    dist = (wr_size - 2.0 * cont.mill_rad) / sqrt(3)
+    offset = [0.0, dist]
+    angles_tfm = [origin.rotate(-a) for a in range(0, 360, 60)]
+    cont.comp.set_tfm(angles_tfm[-1])
+    cont.comp.move(offset)
+    for z in cont.z_seq:
+        cont.comp.set_z(z)
+        for t in angles_tfm:
+            cont.comp.set_tfm(t)
+            cont.comp.feed(offset)
 
 def __compute_corners(offset, width, height):
     y_max = height - offset
